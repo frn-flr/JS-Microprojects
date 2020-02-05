@@ -1,2 +1,2 @@
 # JS-Microprojects
-JavaScript training
+1. // UNDER CONSTRUCTION //
