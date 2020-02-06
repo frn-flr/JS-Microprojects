@@ -1,3 +1,33 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="stylesheet.css">
+    <title>HTML color namer</title>
+</head>
+<body>
+
+    <div class="input">
+        <label for="rgb-input">RGB hexcode</label>
+        <input type="text" name="rgb" id="rgb-input" placeholder="#FFFFFF">
+        <label for="rgb-input">HSL</label>
+        <input type="text" name="hsl" id="hsl-input" placeholder="100%,100%,100%">
+        <label for="color-input">Color picker</label>
+        <input type="color" name="color-picker" id="color-input">
+    </div>
+    <div class="result">
+        The closest web color name is:
+            <div class="wrapper">
+                <div id="color-name">
+                    <span>UKNOWN</span>
+                </div>
+                <div id="color-code">
+                    <span>#??????</span>
+                </div>
+
+            </div>
+
+    </div>
+    <script src="scripts.js"></script>
+</body>
 </html>

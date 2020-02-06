@@ -1,0 +1,10 @@
+body
+{
+    font-family: Lato, Helvetica, sans-serif;
+    font-size: 15px
+}
+
+.input > input
+{
+    border-radius: 10%;
+}
