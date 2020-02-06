@@ -229,7 +229,13 @@ function hslUpdate()
 
 function colorUpdate()
 {
-    console.log("Color input: ", this.value);
+    let code = this.value;
+    code=code.slice(1);
+    let r = parseInt(code.substr(0, 2), 16);
+    let g = parseInt(code.substr(2, 2), 16);
+    let b = parseInt(code.substr(4, 2), 16);
+
+    colorFinder(r,g,b);
 }
 /**
  * @return {string}
@@ -242,7 +248,7 @@ function InputException(input)
 /*
     Color conversions:
 */
-function RGBtoLab(r,g,b)
+function RGBtoLab(r,g,b) //Thanks, EasyRGB!
 {
     r =  r / 255 ;
     g =  g / 255 ;
