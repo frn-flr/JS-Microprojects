@@ -147,7 +147,16 @@ const list = ["#000000 Black",
     "#FFFFF0 Ivory",
     "#FFFFFF White"];
 
-let colors = new Map();
+const rgbInput = document.getElementById("rgb-input");
+const hslInput = document.getElementById("hsl-input");
+const colorInput = document.getElementById("color-input");
+const colorName = document.getElementById("color-name");
+const colorCode = document.getElementById("color-code");
+rgbInput.addEventListener("change", rgbUpdate);
+hslInput.addEventListener("change", hslUpdate);
+colorInput.addEventListener("change", colorUpdate);
+
+let colors = [];
 list.forEach((color)=>
 {
     let hex = color.split(" ")[0];
@@ -155,77 +164,148 @@ list.forEach((color)=>
     let red = parseInt(hex.substr(1,2),16);
     let green = parseInt(hex.substr(3,2),16);
     let blue = parseInt(hex.substr(5,2),16);
-    colors.set([red,green,blue],name);
+    colors.push([RGBtoLab(red,green,blue),name,hex]);
 });
-
-const rgbInput = document.getElementById("rgb-input");
-const hslInput = document.getElementById("hsl-input");
-const colorInput = document.getElementById("color-input");
-
-const colorName = document.getElementById("color-name");
-const colorCode = document.getElementById("color-code");
-
-rgbInput.addEventListener("change", rgbUpdate);
-hslInput.addEventListener("change", hslUpdate);
-colorInput.addEventListener("change", colorUpdate);
 
 function rgbUpdate()
 {
     let code = this.value;
     if(code[0]==='#') code=code.slice(1);
     const pattern = /^[0-9AaBbCcDdEeFf]{6}$/;
-    if(code.match(pattern))
-    {
-        let red = parseInt(code.substr(0,2),16);
-        let green = parseInt(code.substr(2,2),16);
-        let blue = parseInt(code.substr(4,2),16);
-        showColor(...findClosest([red,green,blue]));
+
+    if (!code.match(pattern)) throw InputException(code);
+
+    let r = parseInt(code.substr(0, 2), 16);
+    let g = parseInt(code.substr(2, 2), 16);
+    let b = parseInt(code.substr(4, 2), 16);
+
+    colorFinder(r,g,b);
+}
+function hslUpdate()
+{
+    let code = this.value;
+    const pattern = /^(([0-9](.[0-9]+)?)+%,){2}([0-9](.[0-9]+)?)+%$/;
+
+    if(!code.match(pattern)) throw InputException(code);
+
+    code = code.split(",");
+    let h = parseFloat(code[0])/100;
+    let s = parseFloat(code[1])/100;
+    let l = parseFloat(code[2])/100;
+
+    console.log(h,s,l);
+    if(h>1||s>1||l>1) throw InputException(code);
+
+    //Thanks, stack overflow!
+    var r, g, b;
+
+    if(s === 0){
+        r = g = b = l; // achromatic
     }
+    else
+    {
+        var hue2rgb = function hue2rgb(p, q, t){
+            if(t < 0) t += 1;
+            if(t > 1) t -= 1;
+            if(t < 1/6) return p + (q - p) * 6 * t;
+            if(t < 1/2) return q;
+            if(t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+            return p;
+        };
 
+        var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        var p = 2 * l - q;
+        r = hue2rgb(p, q, h + 1/3);
+        g = hue2rgb(p, q, h);
+        b = hue2rgb(p, q, h - 1/3);
+    }
+    r = Math.round(r * 255);
+    g = Math.round(g * 255);
+    b = Math.round(b * 255);
+    //Will write my version later...
 
+    colorFinder(r,g,b);
 }
 
-function hslUpdate()
-{}
-
 function colorUpdate()
-{}
+{
+    console.log("Color input: ", this.value);
+}
+/**
+ * @return {string}
+ */
+function InputException(input)
+{
+    return input.toString() + " wrong input!";
+}
+
+/*
+    Color conversions:
+*/
+function RGBtoLab(r,g,b)
+{
+    r =  r / 255 ;
+    g =  g / 255 ;
+    b =  b / 255 ;
+
+    if ( r > 0.04045 ) r = ( ( r + 0.055 ) / 1.055 ) ** 2.4;
+    else                   r = r / 12.92;
+    if ( g > 0.04045 ) g = ( ( g + 0.055 ) / 1.055 ) ** 2.4;
+    else                   g = g / 12.92;
+    if ( b > 0.04045 ) b = ( ( b + 0.055 ) / 1.055 ) ** 2.4;
+    else                   b = b / 12.92;
+
+    r = r * 100;
+    g = g * 100;
+    b = b * 100;
+
+    let X = r * 0.4124 + g * 0.3576 + b * 0.1805;
+    let Y = r * 0.2126 + g * 0.7152 + b * 0.0722;
+    let Z = r * 0.0193 + g * 0.1192 + b * 0.9505;
+
+    const refX = 1;
+    const refY = 1;
+    const refZ = 1;
+
+    X = X /refX;
+    Y = Y /refY;
+    Z = Z /refZ;
+
+    if ( X > 0.008856 ) X = X ** ( 1/3 );
+    else                    X = ( 7.787 * X ) + ( 16 / 116 );
+    if ( Y > 0.008856 ) Y = Y ** ( 1/3 );
+    else                    Y = ( 7.787 * Y ) + ( 16 / 116 );
+    if ( Z > 0.008856 ) Z = Z ** ( 1/3 );
+    else                    Z = ( 7.787 * Z ) + ( 16 / 116 );
+
+    let CL = ( 116 * Y ) - 16;
+    let Ca = 500 * ( X - Y );
+    let Cb = 200 * ( Y - Z );
+
+    return [CL,Ca,Cb];
+}
 
 function findClosest(color)
 {
     let min = Infinity;
-    let name = undefined;
-    let hex = undefined;
-    colors.forEach((v,k) => {
-        let d = colorDistance(color,k);
+    let name = "?";
+    let hex = "#ERROR";
+    colors.forEach((v) => {
+        let d = colorDistance(color,v[0]);
         if(d<min)
         {
             min=d;
-            name = v;
+            name = v[1];
             console.log(name);
-            hex = k;
+            hex = v[2];
         }
     });
-    hex = "#"+hueToHex(hex[0])+hueToHex(hex[1])+hueToHex(hex[2]);
-    hex = hex.toUpperCase();
-
     return [name,hex];
-
-}
-
-function hueToHex(hue)
-{
-    let result = hue.toString(16);
-    if(result.length===1)
-    {
-        result = "0"+result;
-    }
-    return result;
 }
 
 function colorDistance(c1,c2)
 {
-    return (c1[0]-c2[0])**2+(c1[1]-c2[1])**2+(c1[2]-c2[2])**2;
+    return Math.sqrt((c1[0]-c2[0])**2+(c1[1]-c2[1])**2+(c1[2]-c2[2])**2);
 }
 
 function showColor(name,hex)
@@ -233,4 +313,9 @@ function showColor(name,hex)
     console.log(name,hex);
     colorName.innerText=name;
     colorCode.innerText=hex;
+}
+
+function colorFinder(r,g,b)
+{
+    showColor(...findClosest(RGBtoLab(r,g,b)));
 }
