@@ -183,7 +183,7 @@ function rgbUpdate()
         code=code.slice(1);
     }
     my_color_box.style.background="#"+code;
-    my_color_box.getElementsByClassName("color-hex")[0].innerText="#"+code;
+    my_color_box.getElementsByClassName("color-hex")[0].innerText="#"+code.toUpperCase();
     colorInput.value="#"+code;
 
     let r = parseInt(code.substr(0, 2), 16);
@@ -237,7 +237,7 @@ function hslUpdate()
     let hex = toHex(r,g,b);
 
     my_color_box.style.background=hex;
-    my_color_box.getElementsByClassName("color-hex")[0].innerText=hex;
+    my_color_box.getElementsByClassName("color-hex")[0].innerText=hex.toUpperCase();
     colorInput.value=hex;
 
     console.log(r,g,b);
@@ -261,7 +261,7 @@ function colorUpdate()
 {
     let code = this.value;
     my_color_box.style.background=code;
-    my_color_box.getElementsByClassName("color-hex")[0].innerText=code;
+    my_color_box.getElementsByClassName("color-hex")[0].innerText=code.toUpperCase();
 
     code=code.slice(1);
     let r = parseInt(code.substr(0, 2), 16);
