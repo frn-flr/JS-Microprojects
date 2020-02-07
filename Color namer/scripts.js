@@ -1,3 +1,6 @@
+/*TODO:
+    white text
+*/
 const list = ["#000000 Black",
     "#000080 Navy",
     "#00008B DarkBlue",
@@ -20,7 +23,7 @@ const list = ["#000000 Black",
     "#228B22 ForestGreen",
     "#2E8B57 SeaGreen",
     "#2F4F4F DarkSlateGray",
-    "#2F4F4F DarkSlateGrey",
+
     "#32CD32 LimeGreen",
     "#3CB371 MediumSeaGreen",
     "#40E0D0 Turquoise",
@@ -35,13 +38,13 @@ const list = ["#000000 Black",
     "#663399 RebeccaPurple",
     "#66CDAA MediumAquaMarine",
     "#696969 DimGray",
-    "#696969 DimGrey",
+
     "#6A5ACD SlateBlue",
     "#6B8E23 OliveDrab",
     "#708090 SlateGray",
-    "#708090 SlateGrey",
+
     "#778899 LightSlateGray",
-    "#778899 LightSlateGrey",
+
     "#7B68EE MediumSlateBlue",
     "#7CFC00 LawnGreen",
     "#7FFF00 Chartreuse",
@@ -50,7 +53,7 @@ const list = ["#000000 Black",
     "#800080 Purple",
     "#808000 Olive",
     "#808080 Gray",
-    "#808080 Grey",
+
     "#87CEEB SkyBlue",
     "#87CEFA LightSkyBlue",
     "#8A2BE2 BlueViolet",
@@ -67,7 +70,7 @@ const list = ["#000000 Black",
     "#A0522D Sienna",
     "#A52A2A Brown",
     "#A9A9A9 DarkGray",
-    "#A9A9A9 DarkGrey",
+
     "#ADD8E6 LightBlue",
     "#ADFF2F GreenYellow",
     "#AFEEEE PaleTurquoise",
@@ -85,7 +88,7 @@ const list = ["#000000 Black",
     "#D2691E Chocolate",
     "#D2B48C Tan",
     "#D3D3D3 LightGray",
-    "#D3D3D3 LightGrey",
+
     "#D8BFD8 Thistle",
     "#DA70D6 Orchid",
     "#DAA520 GoldenRod",
@@ -150,8 +153,8 @@ const list = ["#000000 Black",
 const rgbInput = document.getElementById("rgb-input");
 const hslInput = document.getElementById("hsl-input");
 const colorInput = document.getElementById("color-input");
-const colorName = document.getElementById("color-name");
-const colorCode = document.getElementById("color-code");
+const my_color_box = document.getElementById("my-color-box");
+
 rgbInput.addEventListener("change", rgbUpdate);
 hslInput.addEventListener("change", hslUpdate);
 colorInput.addEventListener("change", colorUpdate);
@@ -170,10 +173,18 @@ list.forEach((color)=>
 function rgbUpdate()
 {
     let code = this.value;
-    if(code[0]==='#') code=code.slice(1);
-    const pattern = /^[0-9AaBbCcDdEeFf]{6}$/;
 
+    const pattern = /^[0-9AaBbCcDdEeFf]{6}$/;
     if (!code.match(pattern)) throw InputException(code);
+
+    if(code[0]==='#')
+    {
+
+        code=code.slice(1);
+    }
+    my_color_box.style.background="#"+code;
+    my_color_box.getElementsByClassName("color-hex")[0].innerText="#"+code;
+    colorInput.value="#"+code;
 
     let r = parseInt(code.substr(0, 2), 16);
     let g = parseInt(code.substr(2, 2), 16);
@@ -193,18 +204,17 @@ function hslUpdate()
     let s = parseFloat(code[1])/100;
     let l = parseFloat(code[2])/100;
 
-    console.log(h,s,l);
     if(h>1||s>1||l>1) throw InputException(code);
 
     //Thanks, stack overflow!
-    var r, g, b;
+    let r, g, b;
 
     if(s === 0){
         r = g = b = l; // achromatic
     }
     else
     {
-        var hue2rgb = function hue2rgb(p, q, t){
+        let hue2rgb = function hue2rgb(p, q, t){
             if(t < 0) t += 1;
             if(t > 1) t -= 1;
             if(t < 1/6) return p + (q - p) * 6 * t;
@@ -213,8 +223,8 @@ function hslUpdate()
             return p;
         };
 
-        var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-        var p = 2 * l - q;
+        let q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        let p = 2 * l - q;
         r = hue2rgb(p, q, h + 1/3);
         g = hue2rgb(p, q, h);
         b = hue2rgb(p, q, h - 1/3);
@@ -224,12 +234,35 @@ function hslUpdate()
     b = Math.round(b * 255);
     //Will write my version later...
 
+    let hex = toHex(r,g,b);
+
+    my_color_box.style.background=hex;
+    my_color_box.getElementsByClassName("color-hex")[0].innerText=hex;
+    colorInput.value=hex;
+
+    console.log(r,g,b);
+
     colorFinder(r,g,b);
+}
+
+function toHex(r,g,b)
+{
+    r=r.toString(16);
+    g=g.toString(16);
+    b=b.toString(16);
+    if(r.length===1) r = "0"+r;
+    if(b.length===1) b = "0"+b;
+    if(g.length===1) g = "0"+g;
+    return "#"+r+g+b;
+
 }
 
 function colorUpdate()
 {
     let code = this.value;
+    my_color_box.style.background=code;
+    my_color_box.getElementsByClassName("color-hex")[0].innerText=code;
+
     code=code.slice(1);
     let r = parseInt(code.substr(0, 2), 16);
     let g = parseInt(code.substr(2, 2), 16);
@@ -269,9 +302,9 @@ function RGBtoLab(r,g,b) //Thanks, EasyRGB!
     let Y = r * 0.2126 + g * 0.7152 + b * 0.0722;
     let Z = r * 0.0193 + g * 0.1192 + b * 0.9505;
 
-    const refX = 1;
-    const refY = 1;
-    const refZ = 1;
+    const refX = 99.001;
+    const refY = 100.000;
+    const refZ = 83.134;
 
     X = X /refX;
     Y = Y /refY;
@@ -293,18 +326,23 @@ function RGBtoLab(r,g,b) //Thanks, EasyRGB!
 
 function findClosest(color)
 {
-    let min = Infinity;
-    let name = "?";
-    let hex = "#ERROR";
+    const N = 3;
+    let min = [Infinity, Infinity, Infinity];
+    let name = ["?","?","?"];
+    let hex = ["#ERROR","#ERROR","#ERROR"];
     colors.forEach((v) => {
         let d = colorDistance(color,v[0]);
-        if(d<min)
+        for(let i=0;i<N;i++)
         {
-            min=d;
-            name = v[1];
-            console.log(name);
-            hex = v[2];
+            if(d<min[i])
+            {
+                min[i] = d;
+                name[i] = v[1];
+                hex[i] = v[2];
+                break;
+            }
         }
+
     });
     return [name,hex];
 }
@@ -316,12 +354,30 @@ function colorDistance(c1,c2)
 
 function showColor(name,hex)
 {
-    console.log(name,hex);
-    colorName.innerText=name;
-    colorCode.innerText=hex;
+    const color_box1 = document.getElementById("color-box1");
+    const color_box2 = document.getElementById("color-box2");
+    const color_box3 = document.getElementById("color-box3");
+
+    color_box1.getElementsByClassName("color-name")[0].innerText=name[0];
+    color_box2.getElementsByClassName("color-name")[0].innerText=name[1];
+    color_box3.getElementsByClassName("color-name")[0].innerText=name[2];
+
+    color_box1.getElementsByClassName("color-hex")[0].innerText=hex[0];
+    color_box2.getElementsByClassName("color-hex")[0].innerText=hex[1];
+    color_box3.getElementsByClassName("color-hex")[0].innerText=hex[2];
+
+
+    color_box1.style.background=hex[0];
+    color_box2.style.background=hex[1];
+    color_box3.style.background=hex[2];
 }
 
 function colorFinder(r,g,b)
 {
     showColor(...findClosest(RGBtoLab(r,g,b)));
+}
+
+function whiteText(r,g,b)
+{
+
 }
