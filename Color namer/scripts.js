@@ -173,22 +173,20 @@ list.forEach((color)=>
 function rgbUpdate()
 {
     let code = this.value;
-
+    if(code[0]==='#')
+    {
+        code=code.slice(1);
+    }
     const pattern = /^[0-9AaBbCcDdEeFf]{6}$/;
     if (!code.match(pattern)) throw InputException(code);
 
-    if(code[0]==='#')
-    {
 
-        code=code.slice(1);
-    }
-    my_color_box.style.background="#"+code;
-    my_color_box.getElementsByClassName("color-hex")[0].innerText="#"+code.toUpperCase();
-    colorInput.value="#"+code;
 
     let r = parseInt(code.substr(0, 2), 16);
     let g = parseInt(code.substr(2, 2), 16);
     let b = parseInt(code.substr(4, 2), 16);
+
+    my_color_boxUpdate(r,g,b,"#"+code);
 
     colorFinder(r,g,b);
 }
@@ -236,11 +234,7 @@ function hslUpdate()
 
     let hex = toHex(r,g,b);
 
-    my_color_box.style.background=hex;
-    my_color_box.getElementsByClassName("color-hex")[0].innerText=hex.toUpperCase();
-    colorInput.value=hex;
-
-    console.log(r,g,b);
+    my_color_boxUpdate(r,b,g,hex);
 
     colorFinder(r,g,b);
 }
@@ -260,15 +254,25 @@ function toHex(r,g,b)
 function colorUpdate()
 {
     let code = this.value;
-    my_color_box.style.background=code;
-    my_color_box.getElementsByClassName("color-hex")[0].innerText=code.toUpperCase();
 
     code=code.slice(1);
     let r = parseInt(code.substr(0, 2), 16);
     let g = parseInt(code.substr(2, 2), 16);
     let b = parseInt(code.substr(4, 2), 16);
 
+    my_color_boxUpdate(r,g,b,"#"+code);
+
     colorFinder(r,g,b);
+}
+
+function my_color_boxUpdate(r,g,b,hex)
+{
+    my_color_box.style.background=hex;
+    my_color_box.getElementsByClassName("color-hex")[0].innerText=hex.toUpperCase();
+    colorInput.value=hex;
+
+    if(whiteText(r,g,b)) my_color_box.style.color="white";
+    else my_color_box.style.color="black";
 }
 /**
  * @return {string}
@@ -362,10 +366,26 @@ function showColor(name,hex)
     color_box2.getElementsByClassName("color-name")[0].innerText=name[1];
     color_box3.getElementsByClassName("color-name")[0].innerText=name[2];
 
+    let r1 = parseInt(hex[0].substr(1, 2),16);
+    let g1=parseInt(hex[0].substr(3, 2),16);
+    let b1=parseInt(hex[0].substr(5, 2),16);
+    let r2=parseInt(hex[1].substr(1, 2),16);
+    let g2=parseInt(hex[1].substr(3, 2),16);
+    let b2=parseInt(hex[1].substr(5, 2),16);
+    let r3 = parseInt(hex[2].substr(1, 2),16);
+    let g3=parseInt(hex[2].substr(3, 2),16);
+    let b3=parseInt(hex[2].substr(5, 2),16);
+
+    if(whiteText(r1,g1,b1)) color_box1.style.color="white";
+    else color_box1.style.color="black";
+    if(whiteText(r2,g2,b2)) color_box2.style.color="white";
+    else color_box2.style.color="black";
+    if(whiteText(r3,g3,b3)) color_box3.style.color="white";
+    else color_box3.style.color="black";
+
     color_box1.getElementsByClassName("color-hex")[0].innerText=hex[0];
     color_box2.getElementsByClassName("color-hex")[0].innerText=hex[1];
     color_box3.getElementsByClassName("color-hex")[0].innerText=hex[2];
-
 
     color_box1.style.background=hex[0];
     color_box2.style.background=hex[1];
@@ -379,5 +399,5 @@ function colorFinder(r,g,b)
 
 function whiteText(r,g,b)
 {
-
+    return ((299*r + 587*g + 114*b)/1000)<150;
 }
